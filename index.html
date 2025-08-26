@@ -3,828 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ai Qez Ban - Digital Card Builder</title>
+    <title>Վեբ և Ադմին Պանել</title>
+    <!-- Tailwind CSS CDN-ի ներառումը գեղեցիկ դիզայնի համար -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* Card Flip CSS */
-        .card-container {
-            perspective: 1000px;
-        }
-
-        .card {
-            width: 100%;
-            height: 100%;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-            position: relative;
-        }
-
-        .card.is-flipped {
-            transform: rotateY(180deg);
-        }
-
-        .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-            border-radius: 24px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 2rem;
-        }
-
-        .card-front {
-            background: linear-gradient(135deg, #10b981 0%, #064e3b 100%);
-            color: white;
-        }
-
-        .card-back {
-            background: #fff;
-            color: #333;
-            transform: rotateY(180deg);
-            padding: 1.5rem;
-            text-align: left;
-        }
-
-        .partner-card {
-            @apply bg-white p-4 rounded-xl shadow-lg transform transition-transform duration-300 hover:scale-105;
-        }
-
-        .google-wallet-svg {
-            width: 30px;
-            height: 30px;
-        }
-
-        .apple-wallet-svg {
-            width: 30px;
-            height: 30px;
-        }
-
-        .admin-section {
-            display: none;
-        }
-
-        .admin-section.active {
-            display: block;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 500px;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .message-box {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #fff;
-            border-left: 5px solid #10b981;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 2000;
-            animation: slideIn 0.5s forwards;
-            max-width: 300px;
-        }
-        @keyframes slideIn {
-            from { transform: translateX(120%); }
-            to { transform: translateX(0); }
+            background-color: #1a202c;
+            color: #e2e8f0;
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-4xl space-y-8 border border-gray-700">
+        <!-- Գլխամաս և նավիգացիա -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2 text-white">Բարի գալուստ</h1>
+            <p class="text-gray-400">Ընտրեք բաժինը</p>
+        </header>
 
-    <!-- Main Container -->
-    <div class="min-h-screen flex flex-col md:flex-row">
-
-        <!-- Admin Panel Sidebar (Initially Hidden) -->
-        <aside id="admin-sidebar" class="hidden md:flex flex-col w-full md:w-64 bg-gray-900 text-white p-6 shadow-xl space-y-4">
-            <h2 class="text-3xl font-bold mb-8 text-center text-green-500">Admin</h2>
-            <nav class="flex-grow space-y-2">
-                <button class="menu-item w-full text-left p-3 rounded-lg flex items-center space-x-3 hover:bg-gray-800 transition-colors duration-200" data-target="dashboard">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Վիճակագրություն</span>
-                </button>
-                <button class="menu-item w-full text-left p-3 rounded-lg flex items-center space-x-3 hover:bg-gray-800 transition-colors duration-200" data-target="cards">
-                    <i class="fa-solid fa-credit-card"></i>
-                    <span>Քարտեր</span>
-                </button>
-                <button class="menu-item w-full text-left p-3 rounded-lg flex items-center space-x-3 hover:bg-gray-800 transition-colors duration-200" data-target="users">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Օգտատերեր</span>
-                </button>
-                <button class="menu-item w-full text-left p-3 rounded-lg flex items-center space-x-3 hover:bg-gray-800 transition-colors duration-200" data-target="registrations">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Գրանցումներ</span>
-                </button>
-                <button class="menu-item w-full text-left p-3 rounded-lg flex items-center space-x-3 hover:bg-gray-800 transition-colors duration-200" data-target="settings">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Կարգավորումներ</span>
-                </button>
-            </nav>
-            <button id="logout-button" class="w-full text-left p-3 rounded-lg flex items-center space-x-3 bg-red-600 hover:bg-red-700 transition-colors duration-200">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span>Ելք</span>
+        <!-- Նավիգացիոն կոճակներ -->
+        <nav class="flex justify-center space-x-4 mb-8">
+            <button id="web-nav-btn" class="px-6 py-3 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                Վեբ
             </button>
-        </aside>
+            <button id="admin-nav-btn" class="px-6 py-3 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                Ադմին
+            </button>
+        </nav>
 
-        <!-- Main Content -->
-        <div class="flex-grow flex flex-col items-center justify-start p-4 md:p-8">
-
-            <!-- Navigation Header -->
-            <header class="w-full max-w-7xl flex flex-col md:flex-row items-center justify-between py-4 px-6 md:px-0">
-                <!-- Logo -->
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-wallet text-3xl text-green-600"></i>
-                    <h1 class="text-2xl font-bold text-gray-800">
-                        <span class="text-green-600">Wallet</span><span class="text-gray-900">Pass</span>
-                    </h1>
-                </div>
-
-                <!-- Admin Panel Button (visible on Registration Page) -->
-                <button id="toggle-view-button" class="mt-4 md:mt-0 px-6 py-2 bg-gray-200 text-gray-700 rounded-full font-semibold hover:bg-gray-300 transition-colors duration-300 shadow-sm">
-                    Մուտք
-                </button>
-
-                <!-- Navigation Menu (visible on Registration Page) -->
-                <nav id="nav-menu" class="hidden md:flex md:space-x-8 mt-4 md:mt-0 font-medium text-gray-600">
-                    <a href="#home" class="hover:text-green-600 transition-colors duration-200">Գլխավոր</a>
-                    <a href="#about" class="hover:text-green-600 transition-colors duration-200">Մենք</a>
-                    <a href="#partners" class="hover:text-green-600 transition-colors duration-200">Գործընկերներ</a>
-                    <a href="#contact" class="hover:text-green-600 transition-colors duration-200">Կապ</a>
-                </nav>
-            </header>
-            
-            <!-- Registration Page -->
-            <main id="registration-page" class="w-full max-w-7xl mt-8">
-                <!-- Home Section -->
-                <section id="home" class="min-h-[calc(100vh-100px)] flex flex-col justify-center items-center text-center p-8 bg-white rounded-3xl shadow-xl">
-                    <h2 class="text-4xl md:text-5xl font-extrabold text-green-700 mb-4">Բարի գալուստ!</h2>
-                    <p class="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl">
-                        Ստացեք ձեր անհատականացված քարտերը Google Wallet-ի և Apple Wallet-ի համար։
+        <!-- Բաժինների հիմնական կոնտեյներ -->
+        <main class="space-y-8">
+            <!-- "Վեբ" էջի բաժին -->
+            <section id="web-section" class="main-section hidden">
+                <h2 class="text-3xl font-bold text-white mb-4">Վեբ Էջ</h2>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-inner">
+                    <p>
+                        Սա "Վեբ" էջի հասանելի բովանդակությունն է։ Այս բովանդակությունը տեսանելի է բոլորին։
                     </p>
-                    <div class="card-container w-full max-w-sm h-64 mx-auto mb-8">
-                        <div class="card" id="wallet-card">
-                            <!-- Card Front -->
-                            <div class="card-face card-front">
-                                <div class="flex justify-between items-start">
-                                    <h3 class="text-sm md:text-lg font-semibold text-white/80">Loyalty Card</h3>
-                                    <div class="text-right">
-                                        <p class="text-4xl md:text-5xl font-bold">120</p>
-                                        <p class="text-sm font-light text-white/80">Միավորներ</p>
-                                    </div>
-                                </div>
-                                <div class="text-left mt-auto">
-                                    <h4 class="text-2xl md:text-3xl font-bold">Միքայել Անտոնյան</h4>
-                                    <p class="text-sm font-light text-white/80">mikayel.antonyan@example.com</p>
-                                </div>
-                            </div>
-                            <!-- Card Back -->
-                            <div class="card-face card-back">
-                                <h3 class="text-xl font-bold text-gray-800 mb-4">Մանրամասներ</h3>
-                                <ul class="text-sm text-gray-600 space-y-2">
-                                    <li><strong>ID:</strong> 123456789</li>
-                                    <li><strong>Գործարքներ:</strong> 5</li>
-                                    <li><strong>Վերջին թարմացումը:</strong> 25/08/2025</li>
-                                </ul>
-                                <div class="mt-auto text-center">
-                                    <button class="mt-4 px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm hover:bg-gray-200 transition-colors">
-                                        Հարցեր?
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Flip button -->
-                    <button id="flip-button" class="mt-4 px-6 py-2 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600 transition-colors duration-300 shadow-md">
-                        Շրջել Քարտը
-                    </button>
-                
-                    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mt-8">
-                        <!-- Google Wallet CTA Button -->
-                        <button id="download-google-button" class="px-8 py-4 bg-gray-900 text-white rounded-xl shadow-lg flex items-center justify-center space-x-2 transition-transform transform hover:scale-105">
-                            <svg class="google-wallet-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2.4 12.8v-1.6h4.8v1.6h-4.8zm0-3.2V8.8h4.8v1.6h-4.8z" fill="white"/>
-                            </svg>
-                            <span class="font-semibold text-lg">Ավելացնել Google Wallet-ին</span>
+                    <p class="mt-4 text-gray-400">
+                        Օրինակ՝ Հոդվածներ, Ապրանքներ, Տեղեկատվություն մեր մասին։
+                    </p>
+                </div>
+            </section>
+
+            <!-- "Ադմին" մուտքի բաժին -->
+            <section id="admin-login-section" class="main-section hidden">
+                <h2 class="text-3xl font-bold text-white mb-4 text-center">Մուտք Ադմին Պանել</h2>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-inner flex flex-col items-center">
+                    <form id="admin-login-form" class="w-full max-w-sm space-y-4">
+                        <label for="password" class="block text-sm font-medium text-gray-300">Մուտքագրեք գաղտնաբառը:</label>
+                        <input type="password" id="password" name="password" required class="w-full px-4 py-2 rounded-lg bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <p id="error-message" class="text-red-400 text-sm hidden">Սխալ գաղտնաբառ։</p>
+                        <button type="submit" class="w-full px-4 py-2 rounded-lg font-semibold bg-green-600 hover:bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+                            Մուտք
                         </button>
-                        <!-- Apple Wallet CTA Button -->
-                        <button id="download-apple-button" class="px-8 py-4 bg-gray-900 text-white rounded-xl shadow-lg flex items-center justify-center space-x-2 transition-transform transform hover:scale-105">
-                            <svg class="apple-wallet-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2.4 12.8v-1.6h4.8v1.6h-4.8zm0-3.2V8.8h4.8v1.6h-4.8z" fill="white"/>
-                            </svg>
-                            <span class="font-semibold text-lg">Ավելացնել Apple Wallet-ին</span>
-                        </button>
-                    </div>
-                </section>
-                
-                <!-- About Us Section -->
-                <section id="about" class="min-h-screen flex flex-col justify-center p-8 bg-gray-100 rounded-3xl mt-8 shadow-xl">
-                    <h2 class="text-4xl font-bold text-center text-gray-800 mb-6">Մենք</h2>
-                    <div class="text-center text-lg text-gray-600 max-w-3xl mx-auto">
-                        <p class="mb-4">
-                            Մենք մասնագիտացված ենք ճկուն և անհատականացված թվային քարտեր ստեղծելու մեջ, որոնք հարմարեցված են բիզնեսի հատուկ կարիքներին։ Մեր լուծումները օգնում են ընկերություններին արդիականացնել իրենց հաճախորդների հետ փոխգործակցությունը՝ տրամադրելով ժամանակակից և հարմարավետ գործիքներ Google և Apple Wallet-ի համար։
-                        </p>
-                        <p>
-                            Մենք հավատում ենք տեխնոլոգիայի ուժին, որը պարզեցնում է առօրյա կյանքը և բիզնես գործընթացները։ Մեր թիմը նվիրված է ստեղծելու անթերի փորձառություն, որը կուրախացնի ձեր հաճախորդներին։
-                        </p>
-                    </div>
-                </section>
-
-                <!-- Partners Section -->
-                <section id="partners" class="min-h-screen flex flex-col justify-center p-8 bg-white rounded-3xl mt-8 shadow-xl">
-                    <h2 class="text-4xl font-bold text-center text-gray-800 mb-6">Գործընկերներ</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
-                        <!-- Partner Card 1 -->
-                        <div class="partner-card text-center">
-                            <i class="fa-solid fa-store text-4xl text-gray-500 mb-2"></i>
-                            <p class="font-semibold text-sm text-gray-700">Գործընկեր 1</p>
-                        </div>
-                        <!-- Partner Card 2 -->
-                        <div class="partner-card text-center">
-                            <i class="fa-solid fa-utensils text-4xl text-gray-500 mb-2"></i>
-                            <p class="font-semibold text-sm text-gray-700">Գործընկեր 2</p>
-                        </div>
-                        <!-- Partner Card 3 -->
-                        <div class="partner-card text-center">
-                            <i class="fa-solid fa-plane text-4xl text-gray-500 mb-2"></i>
-                            <p class="font-semibold text-sm text-gray-700">Գործընկեր 3</p>
-                        </div>
-                        <!-- Partner Card 4 -->
-                        <div class="partner-card text-center">
-                            <i class="fa-solid fa-car text-4xl text-gray-500 mb-2"></i>
-                            <p class="font-semibold text-sm text-gray-700">Գործընկեր 4</p>
-                        </div>
-                        <!-- Partner Card 5 -->
-                        <div class="partner-card text-center">
-                            <i class="fa-solid fa-building text-4xl text-gray-500 mb-2"></i>
-                            <p class="font-semibold text-sm text-gray-700">Գործընկեր 5</p>
-                        </div>
-                        <!-- Partner Card 6 -->
-                        <div class="partner-card text-center">
-                            <i class="fa-solid fa-book-open text-4xl text-gray-500 mb-2"></i>
-                            <p class="font-semibold text-sm text-gray-700">Գործընկեր 6</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Contact Section -->
-                <section id="contact" class="min-h-screen flex flex-col justify-center p-8 bg-gray-100 rounded-3xl mt-8 shadow-xl">
-                    <h2 class="text-4xl font-bold text-center text-gray-800 mb-6">Կապ</h2>
-                    <div class="text-center text-lg text-gray-600 max-w-xl mx-auto space-y-4">
-                        <p><i class="fa-solid fa-map-marker-alt text-green-600"></i> Հասցե: Հայաստան, Երևան, Կոմիտասի պող. 45</p>
-                        <p><i class="fa-solid fa-phone text-green-600"></i> Հեռախոս: +374 10 123 456</p>
-                        <p><i class="fa-solid fa-envelope text-green-600"></i> Էլ. Փոստ: info@example.com</p>
-                        <p><i class="fa-solid fa-clock text-green-600"></i> Աշխատանքային ժամեր: Երկ-Ուրբ, 09:00 - 18:00</p>
-                    </div>
-                </section>
-            </main>
-
-            <!-- Admin Panel Content (Initially Hidden) -->
-            <div id="admin-panel-content" class="w-full max-w-7xl p-4 md:p-8 bg-white rounded-3xl shadow-xl hidden">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-                    <h2 id="admin-page-title" class="text-3xl font-bold text-gray-800">Վիճակագրություն</h2>
-                    <button id="create-card-btn" class="mt-4 md:mt-0 px-6 py-2 bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition-colors duration-300 shadow-md">
-                        <i class="fa-solid fa-plus-circle mr-2"></i>Ստեղծել նոր քարտ
-                    </button>
+                    </form>
                 </div>
+            </section>
 
-                <!-- Admin sections -->
-                <div id="dashboard" class="admin-section active">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="bg-blue-500 text-white p-6 rounded-2xl shadow-md text-center">
-                            <h3 class="text-5xl font-bold mb-2">250</h3>
-                            <p class="text-sm">Ընդհանուր ակտիվ քարտեր</p>
-                        </div>
-                        <div class="bg-yellow-500 text-white p-6 rounded-2xl shadow-md text-center">
-                            <h3 class="text-5xl font-bold mb-2">50</h3>
-                            <p class="text-sm">Ընդհանուր պասիվ քարտեր</p>
-                        </div>
-                        <div class="bg-red-500 text-white p-6 rounded-2xl shadow-md text-center">
-                            <h3 class="text-5xl font-bold mb-2">15</h3>
-                            <p class="text-sm">Ընդհանուր ջնջված քարտեր</p>
-                        </div>
-                        <div class="bg-purple-500 text-white p-6 rounded-2xl shadow-md text-center">
-                            <h3 class="text-5xl font-bold mb-2">310</h3>
-                            <p class="text-sm">Ընդհանուր գրանցումներ</p>
-                        </div>
-                        <div class="bg-green-500 text-white p-6 rounded-2xl shadow-md text-center">
-                            <h3 class="text-5xl font-bold mb-2">180</h3>
-                            <p class="text-sm">Ընդհանուր օգտատերեր</p>
-                        </div>
-                    </div>
-                </div>
+            <!-- Ադմին Պանելի բովանդակության բաժինները -->
+            <section id="admin-content-section" class="main-section hidden">
+                <h2 class="text-3xl font-bold text-white mb-4">Ադմին Պանել</h2>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-inner space-y-6">
+                    <!-- Ադմին բաժինների նավիգացիա -->
+                    <nav class="flex justify-center space-x-4 mb-4">
+                        <button id="users-subnav-btn" class="px-4 py-2 rounded-lg font-semibold bg-gray-600 hover:bg-gray-500 transition duration-300">Օգտատերեր</button>
+                        <button id="settings-subnav-btn" class="px-4 py-2 rounded-lg font-semibold bg-gray-600 hover:bg-gray-500 transition duration-300">Կարգավորումներ</button>
+                    </nav>
 
-                <div id="cards" class="admin-section">
-                    <div class="flex space-x-2 mb-4">
-                        <button class="tab-button active px-4 py-2 bg-gray-200 rounded-full font-semibold" data-target="new-cards">Նոր</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="active-cards">Ակտիվ</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="passive-cards">Պասիվ</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="deleted-cards">Ջնջված</button>
+                    <!-- Առանձին ադմին բաժիններ -->
+                    <div id="admin-users-page" class="admin-page hidden bg-gray-600 p-4 rounded-lg">
+                        <h3 class="text-2xl font-bold mb-2">Օգտատերերի Կառավարում</h3>
+                        <p>Այստեղ կարող եք կառավարել օգտատերերին, ավելացնել, խմբագրել կամ հեռացնել։</p>
                     </div>
-                    <div id="new-cards" class="tab-content active space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>1. Քարտ #12345 (Նոր)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>2. Քարտ #56789 (Նոր)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="active-cards" class="tab-content space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>1. Քարտ #11223 (Ակտիվ)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="passive-cards" class="tab-content space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>1. Քարտ #98765 (Պասիվ)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="deleted-cards" class="tab-content space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>1. Քարտ #54321 (Ջնջված)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="users" class="admin-section">
-                    <div class="flex space-x-2 mb-4">
-                        <button class="tab-button active px-4 py-2 bg-gray-200 rounded-full font-semibold" data-target="new-users">Նոր</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="active-users">Ակտիվ</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="passive-users">Պասիվ</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="deleted-users">Ջնջված</button>
-                    </div>
-                    <div id="new-users" class="tab-content active space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>1. Օգտատեր Ա. (Նոր)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="active-users" class="tab-content space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>1. Օգտատեր Բ. (Ակտիվ)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="passive-users" class="tab-content space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>1. Օգտատեր Գ. (Պասիվ)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="deleted-users" class="tab-content space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>1. Օգտատեր Դ. (Ջնջված)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="registrations" class="admin-section">
-                    <div class="flex space-x-2 mb-4">
-                        <button class="tab-button active px-4 py-2 bg-gray-200 rounded-full font-semibold" data-target="new-registrations">Նոր</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="active-registrations">Ակտիվ</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="passive-registrations">Պասիվ</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="deleted-registrations">Ջնջված</button>
-                    </div>
-                    <div id="new-registrations" class="tab-content active space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>1. Գրանցում #1 (Նոր)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="active-registrations" class="tab-content space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>1. Գրանցում #2 (Ակտիվ)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="passive-registrations" class="tab-content space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>1. Գրանցում #3 (Պասիվ)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="deleted-registrations" class="tab-content space-y-4">
-                        <div class="flex items-center justify-between p-4 bg-gray-100 rounded-xl">
-                            <span>1. Գրանցում #4 (Ջնջված)</span>
-                            <div class="space-x-2">
-                                <button class="text-blue-500 hover:text-blue-700" data-action="archive">Արխիվացնել</button>
-                                <button class="text-yellow-500 hover:text-yellow-700" data-action="edit">Խմբագրել</button>
-                                <button class="text-red-500 hover:text-red-700" data-action="delete">Ջնջել</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div id="settings" class="admin-section">
-                    <div class="flex space-x-2 mb-4">
-                        <button class="tab-button active px-4 py-2 bg-gray-200 rounded-full font-semibold" data-target="apple-integration">Apple Integration</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="google-integration">Google Wallet</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="json-integration">JSON</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="webhook-integration">Webhook</button>
-                        <button class="tab-button px-4 py-2 bg-gray-100 rounded-full font-semibold" data-target="api-integration">API</button>
+                    <div id="admin-settings-page" class="admin-page hidden bg-gray-600 p-4 rounded-lg">
+                        <h3 class="text-2xl font-bold mb-2">Կայքի Կարգավորումներ</h3>
+                        <p>Այստեղ կարող եք փոփոխել կայքի ընդհանուր կարգավորումները։</p>
                     </div>
-                    <div id="apple-integration" class="tab-content active p-6 bg-gray-100 rounded-xl">
-                        <h3 class="font-bold text-lg mb-2">Apple Integration</h3>
-                        <p class="text-gray-600">Այս բաժնում կարող եք կառավարել Apple Wallet-ի ինտեգրումը։</p>
-                    </div>
-                    <div id="google-integration" class="tab-content p-6 bg-gray-100 rounded-xl">
-                        <h3 class="font-bold text-lg mb-2">Google Wallet Integration</h3>
-                        <p class="text-gray-600">Այս բաժնում կարող եք կառավարել Google Wallet-ի ինտեգրումը։</p>
-                    </div>
-                    <div id="json-integration" class="tab-content p-6 bg-gray-100 rounded-xl">
-                        <h3 class="font-bold text-lg mb-2">JSON Integration</h3>
-                        <p class="text-gray-600">Այս բաժնում կարող եք կառավարել JSON-ի ինտեգրումը։</p>
-                    </div>
-                    <div id="webhook-integration" class="tab-content p-6 bg-gray-100 rounded-xl">
-                        <h3 class="font-bold text-lg mb-2">Webhook Integration</h3>
-                        <p class="text-gray-600">Այս բաժնում կարող եք կառավարել Webhook-ի ինտեգրումը։</p>
-                    </div>
-                    <div id="api-integration" class="tab-content p-6 bg-gray-100 rounded-xl">
-                        <h3 class="font-bold text-lg mb-2">API Integration</h3>
-                        <p class="text-gray-600">Այս բաժնում կարող եք կառավարել API-ի ինտեգրումը։</p>
-                    </div>
+
+                    <p class="text-sm text-gray-400 mt-4">Այս բովանդակությունը տեսանելի է միայն գաղտնաբառ մուտքագրելուց հետո։</p>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Reusable Modal (Hidden by default) -->
-    <div id="modal-overlay" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div id="modal-header" class="text-2xl font-bold text-gray-800 mb-4"></div>
-            <div id="modal-body" class="text-gray-600 mb-6"></div>
-            <div id="modal-footer" class="flex justify-end space-x-4"></div>
-        </div>
-    </div>
-
-    <!-- Message box -->
-    <div id="message-box" class="message-box hidden">
-        <div class="flex justify-between items-start">
-            <div>
-                <h3 class="font-bold text-lg text-green-700">Գործողությունն ավարտված է</h3>
-                <p class="text-sm text-gray-600">Սիմուլյացիա։ Քարտը ավելացվել է:</p>
-            </div>
-            <button id="close-message-box" class="text-gray-400 hover:text-gray-600 ml-4">
-                <i class="fa-solid fa-times"></i>
-            </button>
-        </div>
+            </section>
+        </main>
     </div>
 
     <script>
-        // Global functions for modal control
-        const showModal = (header, bodyHtml, footerHtml) => {
-            const modalHeader = document.getElementById('modal-header');
-            const modalBody = document.getElementById('modal-body');
-            const modalFooter = document.getElementById('modal-footer');
-            const modalOverlay = document.getElementById('modal-overlay');
+        // Գաղտնաբառի հաստատում (Միայն դեմոյի համար: Իրական կայքերում սա պետք է կատարվի սերվերում:)
+        const CORRECT_PASSWORD = 'admin';
 
-            modalHeader.innerHTML = header;
-            modalBody.innerHTML = bodyHtml;
-            modalFooter.innerHTML = footerHtml;
-            modalOverlay.classList.remove('hidden');
-        };
+        // Դոմ էլեմենտների հղումներ
+        const webNavBtn = document.getElementById('web-nav-btn');
+        const adminNavBtn = document.getElementById('admin-nav-btn');
+        const adminUsersSubnavBtn = document.getElementById('users-subnav-btn');
+        const adminSettingsSubnavBtn = document.getElementById('settings-subnav-btn');
+        const webSection = document.getElementById('web-section');
+        const adminLoginSection = document.getElementById('admin-login-section');
+        const adminContentSection = document.getElementById('admin-content-section');
+        const adminLoginForm = document.getElementById('admin-login-form');
+        const passwordInput = document.getElementById('password');
+        const errorMessage = document.getElementById('error-message');
+        const adminPages = document.querySelectorAll('.admin-page');
 
-        const hideModal = () => {
-            const modalOverlay = document.getElementById('modal-overlay');
-            modalOverlay.classList.add('hidden');
-        };
-        
-        // Get all necessary elements globally
-        const messageBox = document.getElementById('message-box');
-        const closeMessageBoxButton = document.getElementById('close-message-box');
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            // Get all necessary elements inside DOMContentLoaded
-            const registrationPage = document.getElementById('registration-page');
-            const adminPanelContent = document.getElementById('admin-panel-content');
-            const toggleViewButton = document.getElementById('toggle-view-button');
-            const flipButton = document.getElementById('flip-button');
-            const walletCard = document.getElementById('wallet-card');
-            const navMenu = document.getElementById('nav-menu');
-            const downloadGoogleButton = document.getElementById('download-google-button');
-            const downloadAppleButton = document.getElementById('download-apple-button');
-            const createCardBtn = document.getElementById('create-card-btn');
-            const adminSidebar = document.getElementById('admin-sidebar');
-            const adminPageTitle = document.getElementById('admin-page-title');
-            const logoutButton = document.getElementById('logout-button');
-            
-            // Define the correct password
-            const ADMIN_PASSWORD = "Admin123456!A1rR";
-
-            // State variable to track login status
-            let isLoggedIn = false;
-
-            // Mapping menu items to their content sections
-            const adminSections = {
-                dashboard: 'Վիճակագրություն',
-                cards: 'Քարտեր',
-                users: 'Օգտատերեր',
-                registrations: 'Գրանցումներ',
-                settings: 'Կարգավորումներ'
-            };
-
-            // Function to show a specific admin section
-            const showAdminSection = (sectionId) => {
-                document.querySelectorAll('.admin-section').forEach(section => {
-                    section.classList.add('hidden');
-                    section.classList.remove('active');
-                });
-                document.getElementById(sectionId).classList.remove('hidden');
-                document.getElementById(sectionId).classList.add('active');
-                adminPageTitle.textContent = adminSections[sectionId];
-                // Reset active menu item
-                document.querySelectorAll('.menu-item').forEach(item => {
-                    item.classList.remove('bg-gray-800');
-                    item.classList.add('bg-gray-900');
-                });
-                const activeMenuItem = document.querySelector(`.menu-item[data-target="${sectionId}"]`);
-                if (activeMenuItem) {
-                    activeMenuItem.classList.add('bg-gray-800');
-                    activeMenuItem.classList.remove('bg-gray-900');
-                }
-            };
-            
-            // Function to handle the password modal and view toggle
-            const handleViewToggle = () => {
-                if (isLoggedIn) {
-                    // Switch back to Registration Page
-                    registrationPage.classList.remove('hidden');
-                    adminPanelContent.classList.add('hidden');
-                    adminSidebar.classList.add('hidden');
-                    toggleViewButton.textContent = 'Մուտք';
-                    navMenu.classList.remove('hidden');
-                } else {
-                    showPasswordModal();
-                }
-            };
-
-            // Toggle between Registration and Admin views
-            toggleViewButton.addEventListener('click', handleViewToggle);
-
-            // Function to show the password modal
-            const showPasswordModal = () => {
-                const header = 'Մուտք Ադմինիստրատորի Վահանակ';
-                const body = `
-                    <p class="mb-4">Խնդրում ենք մուտքագրել գաղտնաբառը՝ շարունակելու համար:</p>
-                    <input type="password" id="admin-password-input" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Գաղտնաբառ">
-                    <p id="password-error" class="text-red-500 text-sm mt-2 hidden">Սխալ գաղտնաբառ։ Խնդրում ենք փորձել կրկին։</p>
-                `;
-                const footer = `
-                    <button class="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors" onclick="hideModal()">Չեղարկել</button>
-                    <button id="admin-login-button" class="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors">Մուտք</button>
-                `;
-                showModal(header, body, footer);
-                
-                // Add event listener to the login button inside the modal
-                document.getElementById('admin-login-button').addEventListener('click', () => {
-                    const passwordInput = document.getElementById('admin-password-input');
-                    const passwordError = document.getElementById('password-error');
-                    if (passwordInput.value === ADMIN_PASSWORD) {
-                        isLoggedIn = true;
-                        hideModal();
-                        // Switch to Admin Panel
-                        registrationPage.classList.add('hidden');
-                        adminPanelContent.classList.remove('hidden');
-                        adminSidebar.classList.remove('hidden');
-                        toggleViewButton.textContent = 'Վեբ';
-                        navMenu.classList.add('hidden');
-                        // Set default view to Dashboard
-                        showAdminSection('dashboard');
-                    } else {
-                        passwordError.classList.remove('hidden');
-                    }
-                });
-            };
-
-            // Flip the loyalty card
-            flipButton.addEventListener('click', () => {
-                walletCard.classList.toggle('is-flipped');
+        // Ֆունկցիա՝ բաժինները ցուցադրելու համար
+        function showSection(sectionId) {
+            // Թաքցնել բոլոր հիմնական բաժինները
+            document.querySelectorAll('.main-section').forEach(section => {
+                section.classList.add('hidden');
             });
+            // Ցուցադրել պահանջված բաժինը
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
 
-            // Simulate wallet pass download
-            const simulateDownload = (platform) => {
-                console.log(`Simulating download for ${platform} wallet pass.`);
-                messageBox.classList.remove('hidden');
-            };
-
-            downloadGoogleButton.addEventListener('click', () => {
-                simulateDownload('Google');
+        // Ֆունկցիա՝ ադմին պանելի ներքին բաժինները ցուցադրելու համար
+        function showAdminPage(pageId) {
+            adminPages.forEach(page => {
+                page.classList.add('hidden');
             });
+            document.getElementById(pageId).classList.remove('hidden');
+        }
 
-            downloadAppleButton.addEventListener('click', () => {
-                simulateDownload('Apple');
-            });
-
-            closeMessageBoxButton.addEventListener('click', () => {
-                messageBox.classList.add('hidden');
-            });
-
-            // Sidebar navigation
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    const target = e.currentTarget.dataset.target;
-                    showAdminSection(target);
-                });
-            });
-
-            // Admin tab functionality
-            document.querySelectorAll('.admin-section').forEach(section => {
-                section.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('tab-button')) {
-                        const tabTarget = e.target.dataset.target;
-                        const tabContainer = e.target.closest('.admin-section');
-                        // Reset all tab buttons
-                        tabContainer.querySelectorAll('.tab-button').forEach(btn => {
-                            btn.classList.remove('active', 'bg-gray-200');
-                            btn.classList.add('bg-gray-100');
-                        });
-                        // Set active tab button
-                        e.target.classList.add('active', 'bg-gray-200');
-                        e.target.classList.remove('bg-gray-100');
-                        // Hide all tab content
-                        tabContainer.querySelectorAll('.tab-content').forEach(content => {
-                            content.classList.remove('active');
-                        });
-                        // Show active tab content
-                        document.getElementById(tabTarget).classList.add('active');
-                    }
-                });
-            });
-
-            // Create New Card Modal
-            createCardBtn.addEventListener('click', () => {
-                const header = 'Ստեղծել նոր քարտ';
-                const body = `
-                    <div class="space-y-4">
-                        <label class="block">
-                            <span class="font-semibold">Ընտրել քարտի տեսակը</span>
-                            <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
-                                <option>Loyalty Card</option>
-                                <option>Gift Card</option>
-                                <option>Membership Card</option>
-                                <option>Event Card</option>
-                                <option>Dynamic Card</option>
-                                <option>Contact Card</option>
-                                <option>Special Occasions Card</option>
-                            </select>
-                        </label>
-                    </div>
-                `;
-                const footer = `
-                    <button class="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors" onclick="hideModal()">Չեղարկել</button>
-                    <button class="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors">Ստեղծել</button>
-                `;
-                showModal(header, body, footer);
-            });
-
-            // Logout Modal
-            logoutButton.addEventListener('click', () => {
-                const header = 'Ելք';
-                const body = `<p>Վստահ եք, որ ցանկանում եք դուրս գալ?</p>`;
-                const footer = `
-                    <button class="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors" onclick="hideModal()">Չեղարկել</button>
-                    <button class="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors">Դուրս գալ</button>
-                `;
-                showModal(header, body, footer);
-
-                // Add event listener to the "Դուրս գալ" button inside the modal
-                document.querySelector('.modal-content button.bg-red-500').addEventListener('click', () => {
-                    isLoggedIn = false; // Set login status to false
-                    hideModal();
-                    // Switch back to Registration Page
-                    registrationPage.classList.remove('hidden');
-                    adminPanelContent.classList.add('hidden');
-                    adminSidebar.classList.add('hidden');
-                    toggleViewButton.textContent = 'Մուտք';
-                    navMenu.classList.remove('hidden');
-                });
-            });
-
-            // Delete Confirmation Modal
-            document.querySelectorAll('[data-action="delete"]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const header = 'Ջնջել';
-                    const body = `<p>Վստահ եք, որ ցանկանում եք ջնջել այս տարրը?</p>`;
-                    const footer = `
-                        <button class="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors" onclick="hideModal()">Չեղարկել</button>
-                        <button class="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors" onclick="messageBox.classList.remove('hidden'); messageBox.querySelector('h3').textContent = 'Գործողությունն ավարտված է'; messageBox.querySelector('p').textContent = 'Տարրը ջնջված է (սիմուլյացիա)'; hideModal();">Ջնջել</button>
-                    `;
-                    showModal(header, body, footer);
-                });
-            });
-
-            // Handle any form submissions or other actions that are not part of the modals
-            // This is a placeholder for future backend integration
-            document.querySelectorAll('[data-action]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const action = e.target.dataset.action;
-                    if (action === 'archive' || action === 'edit') {
-                        // Show a message box for archive and edit actions
-                        messageBox.querySelector('h3').textContent = 'Գործողությունն իրականացված է';
-                        messageBox.querySelector('p').textContent = `Սիմուլյացիա. Գործողություն: "${action}"`;
-                        messageBox.classList.remove('hidden');
-                    }
-                });
-            });
+        // Event listeners հիմնական նավիգացիայի համար
+        webNavBtn.addEventListener('click', () => showSection('web-section'));
+        adminNavBtn.addEventListener('click', () => {
+            // Եթե օգտատերն արդեն մուտք է գործել, ցույց տալ ադմին բովանդակությունը
+            if (localStorage.getItem('isAdminAuthenticated') === 'true') {
+                showSection('admin-content-section');
+            } else {
+                // Հակառակ դեպքում, ցույց տալ մուտքի էջը
+                showSection('admin-login-section');
+            }
         });
+
+        // Event listener ադմին մուտքի ձևի համար
+        adminLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                errorMessage.classList.add('hidden');
+                // Պահել գաղտնաբառի վիճակը (դեմոյի համար)
+                localStorage.setItem('isAdminAuthenticated', 'true');
+                showSection('admin-content-section');
+                showAdminPage('admin-users-page'); // Ցույց տալ առաջին ադմին բաժինը
+            } else {
+                errorMessage.classList.remove('hidden');
+                passwordInput.value = '';
+            }
+        });
+
+        // Event listeners ադմին պանելի ներքին նավիգացիայի համար
+        adminUsersSubnavBtn.addEventListener('click', () => showAdminPage('admin-users-page'));
+        adminSettingsSubnavBtn.addEventListener('click', () => showAdminPage('admin-settings-page'));
+
+        // Կայքի բեռնման ժամանակ ցուցադրել "Վեբ" բաժինը
+        window.onload = () => {
+            showSection('web-section');
+        };
     </script>
 </body>
 </html>
