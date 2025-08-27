@@ -160,19 +160,6 @@
             p {
                 font-size: 1rem;
             }
-            
-            .countdown {
-                gap: 10px;
-            }
-            
-            .countdown-item {
-                min-width: 60px;
-                padding: 10px;
-            }
-            
-            .countdown-number {
-                font-size: 1.5rem;
-            }
         }
         
         @media (min-width: 481px) and (max-width: 768px) {
@@ -220,7 +207,7 @@
     <div class="container">
         <div class="card">
             <div class="logo">
-                <img src="https://www.svgrepo.com/show/426192/cogs-settings.svg" alt="Maintenance Icon">
+                <img src="https://pagedone.io/block_preview_image/under-maintenance-page2.png" alt="Maintenance Icon">
             </div>
             
             <h1>Տեխնիկական խնդիր</h1>
@@ -228,67 +215,8 @@
             <p>Մենք տեխնիկական խնդիր ունենք և կայք մուտք գործելը ժամանակավորապես անհասանելի է:</p>
             <p>Մեր թիմը քրտնաջան աշխատում է այս խնդիրը հնարավորինս արագ լուծելու համար:</p>
             <p>Մենք գնահատում ենք Ձեր համբերությունը և ներողություն ենք խնդրում պատճառած անհարմարությունների համար:</p>
-            
-            <div class="countdown">
-                <div class="countdown-item">
-                    <div class="countdown-number" id="days">1</div>
-                    <div class="countdown-label">Օր</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-number" id="hours">2</div>
-                    <div class="countdown-label">Ժամ</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-number" id="minutes">30</div>
-                    <div class="countdown-label">Րոպե</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-number" id="seconds">59</div>
-                    <div class="countdown-label">Վարկյան</div>
-                </div>
-            </div>
         </div>
     </div>
-
-    <script>
-        // Countdown timer
-        function updateCountdown() {
-            const targetDate = new Date();
-            targetDate.setDate(targetDate.getDate() + 2); // Set to 2 days from now
-            
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-            
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            
-            document.getElementById("days").innerText = days.toString().padStart(2, '0');
-            document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
-            document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
-            document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
-        }
-        
-        // Initial call
-        updateCountdown();
-        
-        // Update every second
-        setInterval(updateCountdown, 1000);
-        
-        // Add subtle hover effect to card
-        const card = document.querySelector('.card');
-        card.addEventListener('mousemove', function(e) {
-            const x = e.clientX / window.innerWidth - 0.5;
-            const y = e.clientY / window.innerHeight - 0.5;
-            
-            this.style.transform = `perspective(1000px) rotateY(${x * 5}deg) rotateX(${y * -5}deg)`;
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'none';
-        });
-    </script>
 </body>
 </html>
             
