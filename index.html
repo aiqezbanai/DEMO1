@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Prompt Cards</title>
+  <title>AI QEZ PROMPT</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f9f9fb;
+      background-color: #f4f6f8;
       padding: 20px;
     }
 
@@ -31,7 +31,7 @@
       font-size: 16px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      min-width: 220px;
+      min-width: 200px;
       background-color: #fff;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
@@ -92,7 +92,7 @@
 </head>
 <body>
 
-  <h1>AI Prompt Cards</h1>
+  <h1>AI QEZ PROMPT</h1>
 
   <div class="selectors">
     <select id="agentSelect">
@@ -119,6 +119,16 @@
       <option>TG Bot</option>
       <option>Desktop Software</option>
     </select>
+
+    <select id="fieldSelect">
+      <option value="">Ընտրիր ոլորտ</option>
+      <option>Ծրագրավորում</option>
+      <option>Դիզայն</option>
+      <option>Բիզնես</option>
+      <option>Կրթություն</option>
+      <option>Հոգեկան առողջություն</option>
+      <option>Ավտոմատացում</option>
+    </select>
   </div>
 
   <div class="card-grid" id="promptGrid"></div>
@@ -126,37 +136,49 @@
   <script>
     const prompts = {
       "ChatGPT": {
-        "Web App": ["Ստեղծիր React-based Web App, որը թույլ է տալիս օգտատերերին վերբեռնել PDF ֆայլեր և ստանալ դրանց բովանդակության ամփոփում"],
-        "Website": ["Գրիր SEO-optimized homepage-ի տեքստ՝ AI productivity գործիքի համար"],
-        "Chrome Plugin": ["Ստեղծիր Chrome Extension, որը ավտոմատ կերպով թարգմանում է վեբ էջերը հայերեն"],
-        "Figma Plugin": ["Նախագծիր Figma Plugin, որը ստեղծում է UI component-ներ՝ ըստ տեքստային նկարագրության"],
-        "Mobile App": ["Ստեղծիր Flutter-based Mobile App՝ քնի որակի հետևման համար"],
-        "TG Bot": ["Գրիր Telegram Bot, որը օգտագործում է GPT՝ պատասխանելու օգտատիրոջ հարցերին"],
-        "Desktop Software": ["Նախագծիր Markdown խմբագրիչ՝ live preview ֆունկցիայով"]
+        "Web App": {
+          "Ծրագրավորում": ["Ստեղծիր React-based Web App՝ PDF ֆայլերի ամփոփման ֆունկցիայով"],
+          "Բիզնես": ["Ստեղծիր Web App՝ որը օգնում է թիմերին կառավարել առաջադրանքները AI-ի միջոցով"]
+        },
+        "Mobile App": {
+          "Հոգեկան առողջություն": ["Ստեղծիր Mobile App՝ որը օգնում է օգտատերերին գրել օրագիր՝ տրամադրության վերլուծությամբ"]
+        }
       },
       "Copilot": {
-        "Web App": ["Ստեղծիր Web App, որը Copilot-ի միջոցով վերանայում է օգտատիրոջ գրած տեքստը"],
-        "Website": ["Գրիր homepage-ի տեքստ՝ Copilot-ի վրա հիմնված productivity գործիքի համար"],
-        "Chrome Plugin": ["Ստեղծիր Chrome Extension, որը grammar suggestions է տալիս Gmail-ում"],
-        "Figma Plugin": ["Ստեղծիր Figma Plugin, որը ավտոմատ կերպով ստեղծում է responsive layout-ներ"],
-        "Mobile App": ["Ստեղծիր Mobile App՝ Copilot-ի միջոցով օրագիր գրելու համար՝ տրամադրության վերլուծությամբ"],
-        "TG Bot": ["Telegram Bot, որը տրամադրում է productivity խորհուրդներ Copilot-ի միջոցով"],
-        "Desktop Software": ["Desktop ծրագիր՝ Copilot-ի միջոցով կոդ գրելու և debug անելու համար"]
+        "Desktop Software": {
+          "Ծրագրավորում": ["Նախագծիր desktop ծրագիր՝ Copilot-ի միջոցով կոդ գրելու և debug անելու համար"]
+        },
+        "Figma Plugin": {
+          "Դիզայն": ["Ստեղծիր Figma Plugin, որը ավտոմատ կերպով ստեղծում է responsive layout-ներ"]
+        }
+      },
+      "Lovable": {
+        "Mobile App": {
+          "Հոգեկան առողջություն": ["Նկարագրիր Mobile App, որը օգնում է օգտատերերին հետևել իրենց հոգեկան առողջությանը"]
+        },
+        "Figma Plugin": {
+          "Դիզայն": ["Ստեղծիր Figma Plugin, որը առաջարկում է գունային սխեմաներ՝ ըստ տրամադրության"]
+        }
       }
-      // Այստեղ կարող ես ավելացնել մնացած Agent-ները և կատեգորիաները
     };
 
     const agentSelect = document.getElementById("agentSelect");
     const categorySelect = document.getElementById("categorySelect");
+    const fieldSelect = document.getElementById("fieldSelect");
     const promptGrid = document.getElementById("promptGrid");
 
     function renderCards() {
       const agent = agentSelect.value;
       const category = categorySelect.value;
+      const field = fieldSelect.value;
       promptGrid.innerHTML = "";
 
-      if (prompts[agent] && prompts[agent][category]) {
-        prompts[agent][category].forEach(prompt => {
+      if (
+        prompts[agent] &&
+        prompts[agent][category] &&
+        prompts[agent][category][field]
+      ) {
+        prompts[agent][category][field].forEach(prompt => {
           const card = document.createElement("div");
           card.className = "card";
 
@@ -184,6 +206,7 @@
 
     agentSelect.addEventListener("change", renderCards);
     categorySelect.addEventListener("change", renderCards);
+    fieldSelect.addEventListener("change", renderCards);
   </script>
 
 </body>
