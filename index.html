@@ -1,1 +1,194 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Qez Prompt</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+      padding: 20px;
+    }
 
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .selectors {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    select {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      min-width: 200px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .prompt-text {
+      font-size: 15px;
+      color: #444;
+      margin-bottom: 15px;
+    }
+
+    .copy-btn {
+      align-self: flex-end;
+      background-color: #0078D4;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .copy-btn:hover {
+      background-color: #005fa3;
+    }
+
+    @media (max-width: 600px) {
+      .selectors {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>AI Qez Prompt</h1>
+
+  <div class="selectors">
+    <select id="agentSelect">
+      <option value="">Ընտրիր AI Agent</option>
+      <option>ChatGPT</option>
+      <option>Copilot</option>
+      <option>Lovable</option>
+      <option>Cursor</option>
+    </select>
+
+    <select id="categorySelect">
+      <option value="">Ընտրիր ոլորտ</option>
+      <option>Ծրագրավորում</option>
+      <option>Դիզայն</option>
+      <option>Բիզնես</option>
+      <option>Կրթություն</option>
+      <option>Հոգեկան առողջություն</option>
+      <option>Ավտոմատացում</option>
+    </select>
+  </div>
+
+  <div class="card-grid" id="promptGrid"></div>
+
+  <script>
+    const prompts = {
+      "ChatGPT": {
+        "Ծրագրավորում": [
+          "Ստեղծիր React-based Web App, որը թույլ է տալիս օգտատերերին վերբեռնել PDF ֆայլեր և ստանալ դրանց բովանդակության ամփոփում"
+        ],
+        "Բիզնես": [
+          "Գրիր SEO-optimized homepage-ի տեքստ՝ AI-powered productivity գործիքի համար"
+        ],
+        "Ավտոմատացում": [
+          "Ստեղծիր Chrome Extension, որը ավտոմատ կերպով թարգմանում է վեբ էջերը հայերեն"
+        ]
+      },
+      "Copilot": {
+        "Ծրագրավորում": [
+          "Նախագծիր desktop ծրագիր, որը Copilot-ի միջոցով օգնում է ծրագրավորողներին գրել և debug անել կոդ"
+        ],
+        "Դիզայն": [
+          "Ստեղծիր Figma Plugin, որը Copilot-ի միջոցով ավտոմատ կերպով ստեղծում է responsive layout-ներ"
+        ],
+        "Բիզնես": [
+          "Գրիր Telegram Bot, որը Copilot-ի միջոցով տրամադրում է օգտակար productivity խորհուրդներ"
+        ]
+      },
+      "Lovable": {
+        "Հոգեկան առողջություն": [
+          "Նկարագրիր Mobile App, որը Lovable-ի միջոցով օգնում է օգտատերերին հետևել իրենց հոգեկան առողջությանը",
+          "Նախագծիր desktop ծրագիր, որը Lovable-ի միջոցով տրամադրում է guided journaling sessions"
+        ],
+        "Դիզայն": [
+          "Ստեղծիր Figma Plugin, որը առաջարկում է գունային սխեմաներ՝ հիմնված օգտատիրոջ տրամադրության վրա"
+        ]
+      },
+      "Cursor": {
+        "Ծրագրավորում": [
+          "Ստեղծիր Web App՝ Cursor-ի միջոցով, որը թույլ է տալիս օգտատերերին գրել և debug անել կոդ real-time"
+        ],
+        "Կրթություն": [
+          "Նկարագրիր Mobile App, որը Cursor-ի միջոցով օգնում է օգտատերերին սովորել ծրագրավորում՝ step-by-step"
+        ]
+      }
+    };
+
+    const agentSelect = document.getElementById("agentSelect");
+    const categorySelect = document.getElementById("categorySelect");
+    const promptGrid = document.getElementById("promptGrid");
+
+    function renderCards() {
+      const agent = agentSelect.value;
+      const category = categorySelect.value;
+      promptGrid.innerHTML = "";
+
+      if (prompts[agent] && prompts[agent][category]) {
+        prompts[agent][category].forEach(prompt => {
+          const card = document.createElement("div");
+          card.className = "card";
+
+          const text = document.createElement("div");
+          text.className = "prompt-text";
+          text.textContent = prompt;
+
+          const button = document.createElement("button");
+          button.className = "copy-btn";
+          button.textContent = "Պատճենել";
+          button.onclick = () => {
+            navigator.clipboard.writeText(prompt);
+            button.textContent = "✅ Պատճենված է";
+            setTimeout(() => button.textContent = "Պատճենել", 2000);
+          };
+
+          card.appendChild(text);
+          card.appendChild(button);
+          promptGrid.appendChild(card);
+        });
+      } else {
+        promptGrid.innerHTML = "<p style='text-align:center; width:100%;'>Չկան համապատասխան Prompt-ներ այս ընտրության համար։</p>";
+      }
+    }
+
+    agentSelect.addEventListener("change", renderCards);
+    categorySelect.addEventListener("change", renderCards);
+  </script>
+
+</body>
+</html>
